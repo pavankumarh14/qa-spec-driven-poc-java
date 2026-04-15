@@ -1,0 +1,59 @@
+name: Selenium TestNG - QA Spec-Driven POC
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual trigger from Actions tab or Copilot
+
+jobs:
+  run-selenium-tests:
+    name: Run Selenium Tests (Headless Chrome)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Java 11
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Install Google Chrome (latest stable)
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      # 4. Enable headless mode for CI by patching BaseTest.java
+      - name: Enable headless Chrome for CI
+        run: |
+          sed -i 's|// options.addArguments("--headless"|options.addArguments("--headless"|' src/test/java/base/BaseTest.java
+
+      # 5. Run tests with Maven
+      - name: Run Selenium TestNG tests
+        run: mvn test --no-transfer-progress
+        env:
+          DISPLAY: :99  # needed for some Chrome setups
+
+      # 6. Upload TestNG HTML report as artifact
+      - name: Upload TestNG Test Report
+        uses: actions/upload-artifact@v4
+        if: always()  # Upload even if tests fail
+        with:
+          name: testng-report
+          path: target/surefire-reports/
+          retention-days: 14
+
+      # 7. Publish test summary
+      - name: Test Summary
+        uses: test-summary/action@v2
+        if: always()
+        with:
+          paths: target/surefire-reports/*.xml
