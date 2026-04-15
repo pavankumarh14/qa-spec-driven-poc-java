@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="QA Spec-Driven POC Suite" verbose="2">
+
+  <test name="Login Feature Tests">
+    <!--
+      Spec Traceability:
+      AUTH-001 -> TC-LOGIN-001 -> LoginTest.validLoginTest
+      AUTH-002 -> TC-LOGIN-002 -> LoginTest.invalidPasswordTest
+      AUTH-003 -> TC-LOGIN-003 -> LoginTest.blankCredentialsValidationTest
+    -->
+    <classes>
+      <class name="tests.LoginTest"/>
+    </classes>
+  </test>
+
+</suite>
